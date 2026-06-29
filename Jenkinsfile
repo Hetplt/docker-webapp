@@ -26,11 +26,12 @@ pipeline {
         }
 
 
-        stage('Verify Deployment') {
+        stage('Verify Kubernetes') {
             steps {
                 sh 'kubectl get pods'
                 sh 'kubectl get svc'
             }
         }
+
     }
 }
