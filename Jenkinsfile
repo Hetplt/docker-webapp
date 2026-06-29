@@ -10,17 +10,26 @@ pipeline {
             }
         }
 
+
         stage('Docker Push') {
             steps {
                 sh 'docker push hetptl/my-webapp'
             }
         }
 
-        stage('Run Container') {
+
+        stage('Kubernetes Deploy') {
             steps {
-                sh 'docker stop my-webapp || true'
-                sh 'docker rm my-webapp || true'
-                sh 'docker run -d --name my-webapp -p 8081:80 hetptl/my-webapp'
+                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl apply -f service.yaml'
+            }
+        }
+
+
+        stage('Verify Deployment') {
+            steps {
+                sh 'kubectl get pods'
+                sh 'kubectl get svc'
             }
         }
     }
