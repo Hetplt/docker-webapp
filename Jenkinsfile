@@ -1,37 +1,20 @@
-pipeline {
+stage('Docker Push') {
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKER_USER',
+                passwordVariable: 'DOCKER_PASS'
+            )
+        ]) {
 
-    agent any
+            sh '''
+            echo $DOCKER_PASS | docker login \
+            -u $DOCKER_USER \
+            --password-stdin
 
-    stages {
-
-        stage('Docker Build') {
-            steps {
-                sh 'docker build -t hetptl/my-webapp .'
-            }
+            docker push hetptl/my-webapp
+            '''
         }
-
-
-        stage('Docker Push') {
-            steps {
-                sh 'docker push hetptl/my-webapp'
-            }
-        }
-
-
-        stage('Kubernetes Deploy') {
-            steps {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
-            }
-        }
-
-
-        stage('Verify Kubernetes') {
-            steps {
-                sh 'kubectl get pods'
-                sh 'kubectl get svc'
-            }
-        }
-
     }
 }
